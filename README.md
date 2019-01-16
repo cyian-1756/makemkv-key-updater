@@ -2,6 +2,8 @@
 
 This program updates the makemkv beta key
 
+Currently only linux is supported 
+
 ## Installing
 
 First install goquery with 
