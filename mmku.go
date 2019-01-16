@@ -23,7 +23,7 @@ func getHomeDir() string {
 	return os.Getenv("HOME")
 }
 
-func ExampleScrape() {
+func scrape() {
 	// Request the HTML page.
 	fmt.Println("[*] Getting webpage")
 	res, err := http.Get("https://www.makemkv.com/forum/viewtopic.php?f=5&t=1053")
@@ -44,10 +44,14 @@ func ExampleScrape() {
 	// Find the new key
 	fmt.Println("[*] Extracting key")
 	key := doc.Find(".codebox pre code").Text()
+
+	// Set up a var for the file we're going to write to disk
 	newFile := ""
 	fileContainsAppKey := false
 	// If the file doesn't exist we skip reading it and set it to it's default values
-	if _, err := os.Stat("/path/to/whatever"); os.IsNotExist(err) {
+	if _, err := os.Stat(getHomeDir() + "/.MakeMKV/settings.conf"); os.IsNotExist(err) {
+		fmt.Println("[!] " + getHomeDir() + "/.MakeMKV/settings.conf " + "does not exist")
+		fmt.Println("[*] Creating file using default values")
 		newFile = "#\n# MakeMKV settings file, written by MakeMKV v1.10.8 linux(x64-release)\n#\napp_BackupDecrypted = \"1\"\n"
 	} else {
 		dat, err := ioutil.ReadFile(getHomeDir() + "/.MakeMKV/settings.conf")
@@ -55,7 +59,10 @@ func ExampleScrape() {
 			log.Fatal(err)
 		}
 		f := strings.Split(string(dat), "\n")
+		// Loop over every line in the file
 		for _, element := range f {
+			// Get the app key from the file and exit if it's the same as the current app key
+			// if it's not then change the app key line.
 			if strings.HasPrefix(element, "app_Key") {
 				fileContainsAppKey = true
 				currentKey := strings.Replace(element, "app_Key", "", -1)
@@ -71,6 +78,7 @@ func ExampleScrape() {
 				newFile += "app_Key = \"" + key + "\""
 
 			} else if element != "\n" {
+				// Add every line we find to the file new
 				newFile += element + "\n"
 			}
 		}
@@ -84,5 +92,5 @@ func ExampleScrape() {
 }
 
 func main() {
-	ExampleScrape()
+	scrape()
 }
