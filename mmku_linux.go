@@ -7,19 +7,13 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"runtime"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
 func getConfigPath() (string, error) {
-	makemkvFolder := ""
-	if runtime.GOOS == "linux" {
-		makemkvFolder = getHomeDir() + "/.MakeMKV/"
-	} else if runtime.GOOS == "windows" {
-		makemkvFolder = os.Getenv("ProgramFiles(x86)") + "\\MakeMKV\\"
-	}
+	makemkvFolder := getHomeDir() + "/.MakeMKV/"
 	// If we can't find the install dir we just error out
 	// TODO let the user pass in the install dir
 	if _, err := os.Stat(makemkvFolder); os.IsNotExist(err) {
@@ -29,21 +23,11 @@ func getConfigPath() (string, error) {
 }
 
 func getHomeDir() string {
-	if runtime.GOOS == "windows" {
-		home := os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
-		if home == "" {
-			home = os.Getenv("USERPROFILE")
-		}
-		return home
-	}
 	return os.Getenv("HOME")
 }
 
 // Handle windows werid new lines
 func getNewLine() string {
-	if runtime.GOOS == "windows" {
-		return "\r\n"
-	}
 	return "\n"
 }
 
@@ -95,13 +79,13 @@ func writeKeyToDisk(key string) {
 	if !fileContainsAppKey {
 		newFile += "app_Key = \"" + key + "\""
 	}
-	fmt.Println("[*] Writing file")
+	log.Println("[*] Writing file")
 	ioutil.WriteFile(configPath, []byte(newFile), 0644)
 }
 
 func scrape() {
 	// Request the HTML page.
-	fmt.Println("[*] Getting webpage")
+	log.Println("[*] Getting webpage")
 	res, err := http.Get("https://www.makemkv.com/forum/viewtopic.php?f=5&t=1053")
 	if err != nil {
 		log.Fatal(err)
@@ -118,7 +102,7 @@ func scrape() {
 	}
 
 	// Find the new key
-	fmt.Println("[*] Extracting key")
+	log.Println("[*] Extracting key")
 	key := doc.Find(".codebox pre code").Text()
 	writeKeyToDisk(key)
 }
