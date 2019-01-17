@@ -18,7 +18,7 @@ func getConfigPath() (string, error) {
 	if runtime.GOOS == "linux" {
 		makemkvFolder = getHomeDir() + "/.MakeMKV/"
 	} else if runtime.GOOS == "windows" {
-		makemkvFolder = os.Getenv("ProgramFiles(x86)") + "/MakeMKV/"
+		makemkvFolder = os.Getenv("ProgramFiles(x86)") + "\\MakeMKV\\"
 	}
 	// If we can't find the install dir we just error out
 	// TODO let the user pass in the install dir
